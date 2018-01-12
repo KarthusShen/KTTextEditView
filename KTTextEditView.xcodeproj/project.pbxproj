@@ -11,6 +11,7 @@
 		AAE369E72004C8C300650442 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAE369E62004C8C300650442 /* Assets.xcassets */; };
 		AAE369EA2004C8C300650442 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = AAE369E82004C8C300650442 /* MainMenu.xib */; };
 		AAE369ED2004C8C300650442 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AAE369EC2004C8C300650442 /* main.m */; };
+		AAE369F72004C96700650442 /* KTTextEditView.m in Sources */ = {isa = PBXBuildFile; fileRef = AAE369F62004C96700650442 /* KTTextEditView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,8 @@
 		AAE369EB2004C8C300650442 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AAE369EC2004C8C300650442 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		AAE369EE2004C8C300650442 /* KTTextEditView.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KTTextEditView.entitlements; sourceTree = "<group>"; };
+		AAE369F52004C96700650442 /* KTTextEditView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KTTextEditView.h; sourceTree = "<group>"; };
+		AAE369F62004C96700650442 /* KTTextEditView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KTTextEditView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +42,7 @@
 			isa = PBXGroup;
 			children = (
 				AAE369E22004C8C300650442 /* KTTextEditView */,
+				AAE369F42004C8CA00650442 /* KTTextEditViewDemo */,
 				AAE369E12004C8C300650442 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +58,15 @@
 		AAE369E22004C8C300650442 /* KTTextEditView */ = {
 			isa = PBXGroup;
 			children = (
+				AAE369F52004C96700650442 /* KTTextEditView.h */,
+				AAE369F62004C96700650442 /* KTTextEditView.m */,
+			);
+			path = KTTextEditView;
+			sourceTree = "<group>";
+		};
+		AAE369F42004C8CA00650442 /* KTTextEditViewDemo */ = {
+			isa = PBXGroup;
+			children = (
 				AAE369E32004C8C300650442 /* AppDelegate.h */,
 				AAE369E42004C8C300650442 /* AppDelegate.m */,
 				AAE369E62004C8C300650442 /* Assets.xcassets */,
@@ -62,7 +75,7 @@
 				AAE369EC2004C8C300650442 /* main.m */,
 				AAE369EE2004C8C300650442 /* KTTextEditView.entitlements */,
 			);
-			path = KTTextEditView;
+			path = KTTextEditViewDemo;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -136,6 +149,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AAE369ED2004C8C300650442 /* main.m in Sources */,
+				AAE369F72004C96700650442 /* KTTextEditView.m in Sources */,
 				AAE369E52004C8C300650442 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -261,10 +275,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = KTTextEditView/KTTextEditView.entitlements;
+				CODE_SIGN_ENTITLEMENTS = KTTextEditViewDemo/KTTextEditView.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = KTTextEditView/Info.plist;
+				INFOPLIST_FILE = KTTextEditViewDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.karthus.KTTextEditView;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -275,10 +289,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = KTTextEditView/KTTextEditView.entitlements;
+				CODE_SIGN_ENTITLEMENTS = KTTextEditViewDemo/KTTextEditView.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = KTTextEditView/Info.plist;
+				INFOPLIST_FILE = KTTextEditViewDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.karthus.KTTextEditView;
 				PRODUCT_NAME = "$(TARGET_NAME)";
