@@ -21,6 +21,7 @@ typedef enum : NSUInteger
 @property (nonatomic, assign)KTTextEditViewSendAction sendActionType;
 - (void)kt_setDelegate:(_Nullable id <KTTextEditViewDelegate>)delegate;
 - (void)kt_setSendAction:(KTTextEditViewSendAction)action;
+- (void)kt_clearContents;
 
 @end
 

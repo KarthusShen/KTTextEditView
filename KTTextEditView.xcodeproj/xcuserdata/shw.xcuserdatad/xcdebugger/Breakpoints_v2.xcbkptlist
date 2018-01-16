@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "KTTextEditView/KTTextEditView.m"
-            timestampString = "537789166.17235"
+            timestampString = "537792860.733651"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "174"
-            endingLineNumber = "174"
-            landmarkName = "-performDragOperation:"
+            startingLineNumber = "142"
+            endingLineNumber = "142"
+            landmarkName = "-appendImageAttachment:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

@@ -50,7 +50,11 @@
     self.allowsImageEditing = NO;
     
     [self registerForDraggedTypes:[NSImage imageTypes]];
-    [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeFileURL]];
+    if (@available(macOS 10.13, *)) {
+        [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeFileURL]];
+    } else {
+        // Fallback on earlier versions
+    }
     [self setDelegate:self];
     
     self.sendActionType = action_Enter;
@@ -141,14 +145,36 @@
     {
         return;
     }
-    NSTextAttachmentCell *attachmentCell = [[NSTextAttachmentCell alloc] initImageCell:image];
-    NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
-    [attachment setAttachmentCell: attachmentCell];
-    NSAttributedString *attributedString = [NSAttributedString  attributedStringWithAttachment: attachment];
-    [self.textStorage appendAttributedString:attributedString];
+    NSString *tempPath = NSTemporaryDirectory();
+    NSUUID *uuid = [NSUUID UUID];
+    NSString *fileName = [[uuid UUIDString] stringByAppendingPathExtension:@"jpg"];
+    NSString *filePath = [NSString stringWithFormat:@"%@%@", tempPath, fileName];
+    
+    NSData *imageData = [image TIFFRepresentation];
+    NSBitmapImageRep *imageRep = [NSBitmapImageRep imageRepWithData:imageData];
+    [imageRep setSize:image.size];
+    NSDictionary *imageProps = nil;
+    NSNumber *quality = [NSNumber numberWithFloat:.85];
+    imageProps = [NSDictionary dictionaryWithObject:quality forKey:NSImageCompressionFactor];
+    imageData = [imageRep representationUsingType:NSJPEGFileType properties:imageProps];
+    BOOL result = [imageData writeToFile:filePath atomically:YES];
+    if (result == NO)
+    {
+        NSLog(@"create temp image file error");
+    }
+    NSError *error = nil;
+    NSURL *url = [NSURL fileURLWithPath:filePath];
+    NSFileWrapper *fileWrapper = [[NSFileWrapper alloc] initWithURL:url options:NSFileWrapperReadingImmediate error:&error];
+    if(error)
+    {
+        NSLog(@"create fileWrapper error at: %@, error:%@", filePath, error);
+    }
+    NSTextAttachment *attachment = [[NSTextAttachment alloc] initWithFileWrapper:fileWrapper];
+    NSAttributedString *attString = [NSAttributedString attributedStringWithAttachment:attachment];
+    [self.textStorage appendAttributedString:attString];
 }
 
-- (void)clearContents
+- (void)kt_clearContents
 {
     [self replaceCharactersInRange:NSMakeRange(0, self.textStorage.length) withString:@""];
 }
