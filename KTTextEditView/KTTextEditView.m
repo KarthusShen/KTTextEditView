@@ -50,8 +50,10 @@
     self.allowsImageEditing = NO;
     
     [self registerForDraggedTypes:[NSImage imageTypes]];
-    [self registerForDraggedTypes:[NSAttributedString textTypes]];
+    [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeFileURL]];
     [self setDelegate:self];
+    
+    self.sendActionType = action_Enter;
 }
 
 - (void)kt_setDelegate:(_Nullable id <KTTextEditViewDelegate>)delegate
@@ -59,7 +61,12 @@
     _kt_delegate = delegate;
 }
 
-#pragma mark - override super functions
+- (void)kt_setSendAction:(KTTextEditViewSendAction)action
+{
+    _sendActionType = action;
+}
+
+#pragma mark - override functions
 - (void)paste:(id)sender
 {
     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
@@ -83,11 +90,7 @@
             for(NSURL *url in fileURLs)
             {
                 NSString *filePath = [url path];
-                NSString *pathExtension = [filePath pathExtension];
-                
-                if ([pathExtension isEqualToString:@"png"] || [pathExtension isEqualToString:@"jpg"] ||
-                    [pathExtension isEqualToString:@"jpeg"] || [pathExtension isEqualToString:@"gif"]||
-                    [pathExtension isEqualToString:@"bitmap"])
+                if ([self fileIsImageFile:filePath])
                 {
                     //This file is an image, import it to the textview as a 'NSTextAttachment'.
                     NSError *error = nil;
@@ -104,9 +107,10 @@
                 else
                 {
                     //This file is not an image, notify the filepath through 'KTTextEditViewDelegate'.
-                    if ([_kt_delegate respondsToSelector:@selector(textEditView:didImportFile:)])
+                    NSLog(@"import a non-image file,path:%@", filePath);
+                    if ([_kt_delegate respondsToSelector:@selector(textEditView:didImportNonImageFile:)])
                     {
-                        [_kt_delegate textEditView:self didImportFile:filePath];
+                        [_kt_delegate textEditView:self didImportNonImageFile:filePath];
                     }
                 }
             }
@@ -120,11 +124,7 @@
         {
             for(NSImage *image in items)
             {
-                NSTextAttachmentCell *attachmentCell = [[NSTextAttachmentCell alloc] initImageCell:image];
-                NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
-                [attachment setAttachmentCell: attachmentCell ];
-                NSAttributedString *attributedString = [NSAttributedString  attributedStringWithAttachment: attachment];
-                [self.textStorage appendAttributedString:attributedString];
+                [self appendImageAttachment:image];
             }
         }
     }
@@ -134,6 +134,87 @@
     }
 }
 
+#pragma mark private functions
+- (void)appendImageAttachment: (NSImage *)image
+{
+    if (image == nil)
+    {
+        return;
+    }
+    NSTextAttachmentCell *attachmentCell = [[NSTextAttachmentCell alloc] initImageCell:image];
+    NSTextAttachment *attachment = [[NSTextAttachment alloc] init];
+    [attachment setAttachmentCell: attachmentCell];
+    NSAttributedString *attributedString = [NSAttributedString  attributedStringWithAttachment: attachment];
+    [self.textStorage appendAttributedString:attributedString];
+}
+
+- (void)clearContents
+{
+    [self replaceCharactersInRange:NSMakeRange(0, self.textStorage.length) withString:@""];
+}
+
+- (BOOL)fileIsImageFile: (NSString*)filePath
+{
+    NSString *pathExtension = [filePath pathExtension];
+    
+    if ([pathExtension isEqualToString:@"png"] || [pathExtension isEqualToString:@"jpg"] ||
+        [pathExtension isEqualToString:@"jpeg"] || [pathExtension isEqualToString:@"gif"]||
+        [pathExtension isEqualToString:@"bitmap"])
+    {
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
+}
+
+#pragma mark - NSDraggingDestnation
+
+- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender
+{
+    NSLog(@"performDragOperation.");
+    
+    NSPasteboard *pboard = [sender draggingPasteboard];
+    if ( [[pboard types] containsObject:NSFilenamesPboardType] )
+    {
+        //The dragging sources are files
+        NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
+        if(files != nil)
+        {
+            for(NSString* path in files)
+            {
+                if ([self fileIsImageFile:path])
+                {
+                    NSImage *image = [[NSImage alloc]initWithContentsOfFile:path];
+                    [self appendImageAttachment:image];
+                }
+                else
+                {
+                    //This file is not an image, notify the filepath through 'KTTextEditViewDelegate'.
+                    NSLog(@"import a non-image file,path:%@", path);
+                    if ([_kt_delegate respondsToSelector:@selector(textEditView:didImportNonImageFile:)])
+                    {
+                        [_kt_delegate textEditView:self didImportNonImageFile:path];
+                    }
+                }
+            }
+        }
+    }
+    else if ([NSImage canInitWithPasteboard: pboard])
+    {
+        //The draggin sources are not files, but maybe something can representation as image
+        NSImage *image = [[NSImage alloc] initWithPasteboard: pboard];
+        [self appendImageAttachment:image];
+    }
+    else
+    {
+        return [super performDragOperation:sender];
+    }
+    return YES;
+}
+
+
 #pragma mark - NSTextViewDelegate
 
 - (BOOL)textView:(NSTextView *)textView doCommandBySelector:(SEL)commandSelector
@@ -141,15 +222,31 @@
     if(textView == self)
     {
         //it means user pressed the enter key in the inputTextView
-        if (commandSelector == @selector(insertNewline:))
+        if (commandSelector == @selector(insertNewline:) && self.sendActionType == action_Enter)
         {
-            //TODO: Gather contents that user inputed.
+            if([_kt_delegate respondsToSelector:@selector(performSendAction)])
+            {
+                [_kt_delegate performSendAction];
+            }
             return YES;
         }
-        
+        else if (commandSelector == @selector(noop:) && self.sendActionType == action_CommandEnter)
+        {
+            if([_kt_delegate respondsToSelector:@selector(performSendAction)])
+            {
+                [_kt_delegate performSendAction];
+            }
+            return YES;
+        }
+        else
+        {
+            return NO;
+        }
     }
     return NO;
 }
+
+
 
 
 
